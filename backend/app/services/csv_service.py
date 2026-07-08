@@ -100,6 +100,14 @@ class CSVService:
                 message=f"CSV is missing required columns: {', '.join(missing_cols)}. Required: {', '.join(sorted(self.REQUIRED_COLUMNS))}"
             )
 
+        unknown_cols = col_set - self.REQUIRED_COLUMNS
+        if unknown_cols:
+            raise AppException(
+                status_code=400,
+                code="UNKNOWN_COLUMNS",
+                message=f"CSV contains unknown columns: {', '.join(unknown_cols)}. Only standard columns are permitted."
+            )
+
         file_stream.seek(0)
         
         batch_id = uuid.uuid4()
@@ -240,13 +248,13 @@ class CSVService:
 
         # card_brand
         brand = row.get("card_brand", "").upper().strip()
-        if not brand:
-            errors.append(CSVRowError(row_number=row_num, field="card_brand", error="Card brand cannot be empty."))
+        if brand not in self.ALLOWED_BRANDS:
+            errors.append(CSVRowError(row_number=row_num, field="card_brand", error=f"Brand must be one of {self.ALLOWED_BRANDS}."))
 
         # billing_country
         b_country = row.get("billing_country", "").strip()
-        if not (2 <= len(b_country) <= 3):
-            errors.append(CSVRowError(row_number=row_num, field="billing_country", error="Billing country must be a 2 or 3 character code."))
+        if len(b_country) != 3:
+            errors.append(CSVRowError(row_number=row_num, field="billing_country", error="Billing country must be a 3-character ISO code."))
 
         # ip_address
         ip = row.get("ip_address", "").strip()
@@ -255,8 +263,8 @@ class CSVService:
 
         # device_type
         device = row.get("device_type", "").lower().strip()
-        if not device:
-            errors.append(CSVRowError(row_number=row_num, field="device_type", error="Device type cannot be empty."))
+        if device not in self.ALLOWED_DEVICES:
+            errors.append(CSVRowError(row_number=row_num, field="device_type", error=f"Device type must be one of {self.ALLOWED_DEVICES}."))
 
         # email_domain
         email = row.get("email_domain", "").strip()
@@ -265,7 +273,7 @@ class CSVService:
 
         # card_country
         c_country = row.get("card_country", "").strip()
-        if not (2 <= len(c_country) <= 3):
-            errors.append(CSVRowError(row_number=row_num, field="card_country", error="Card country must be a 2 or 3 character code."))
+        if len(c_country) != 3:
+            errors.append(CSVRowError(row_number=row_num, field="card_country", error="Card country must be a 3-character ISO code."))
 
         return errors
