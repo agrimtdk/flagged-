@@ -55,6 +55,8 @@ async def google_login(
     response: Response,
     db: AsyncSession = Depends(get_db)
 ):
+    logger.info(f"Received code: {payload.code!r}")
+    logger.info(f"Received redirect_uri: {payload.redirect_uri!r}")
     auth_service = AuthService(db)
     access_token, refresh_token, user = await auth_service.login_with_google(payload.code, payload.redirect_uri)
     
