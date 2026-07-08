@@ -10,11 +10,19 @@ import app.models
 
 logger = logging.getLogger("app.core.database")
 
-# Construct async connection string and URL-encode the password to escape special characters like '@'
-DATABASE_URL = (
-    f"postgresql+asyncpg://{settings.POSTGRES_USER}:{urllib.parse.quote_plus(settings.POSTGRES_PASSWORD)}"
-    f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-)
+import os
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    DATABASE_URL = (
+        f"postgresql+asyncpg://{settings.POSTGRES_USER}:{urllib.parse.quote_plus(settings.POSTGRES_PASSWORD)}"
+        f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+    )
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 # Initialize production-ready async database engine
 engine = create_async_engine(
