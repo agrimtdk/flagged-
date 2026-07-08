@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.env
+
+# Node & Frontend
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# PostgreSQL & Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# ML & Models
+ml/datasets/raw/
+ml/datasets/processed/
+catboost_info/
+
+# Docker
+*.pid
+
+# Coverage
+.coverage
+htmlcov/
+
+# Testing
+.pytest_cache/
+
+# Build
+build/
+*.egg-info/
+
+# Secrets
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+frontend/.env.local

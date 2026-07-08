@@ -1,0 +1,2 @@
+timestamp,model_version,model_type,parameters,pr_auc,roc_auc,optimal_threshold,max_utility
+2026-07-06T12:56:33.200964,v1.0.0,CatBoost,"{""learning_rate"": 0.01, ""iterations"": 200, ""depth"": 4}",0.3801449473120958,1710.0,0.5,1710.0

@@ -1,0 +1,4 @@
+amount,currency,timestamp,device_id,ip_address,country,brand,source
+124.50,USD,2026-07-06T14:30:00Z,dev_889a,192.168.1.100,US,Visa,mobile_app
+8999.00,USD,2026-07-06T14:31:12Z,dev_anon_3,45.33.22.11,RU,Mastercard,web_checkout
+12.99,EUR,2026-07-06T14:32:45Z,dev_442b,82.102.21.5,DE,Amex,api

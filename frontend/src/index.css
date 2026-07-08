@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FAF8F6;
+  --card: #F5F2EF;
+  --surface: #EBE6E0;
+  --accent: #10B981; /* Mint Green */
+  --accent-foreground: #FFFFFF;
+  --text-primary: #1F2937; /* Dark Charcoal */
+  --text-secondary: #4B5563;
+  --border: #E5E7EB;
+}
+
+.dark {
+  --background: #18181B; /* Primary Background: Zinc 900 */
+  --card: #27272A; /* Secondary Background: Zinc 800 */
+  --surface: #3F3F46; /* Surface/Card Background: Zinc 700 */
+  --accent: #FEF08A; /* Pastel Yellow */
+  --accent-foreground: #18181B;
+  --text-primary: #FAFAFA; /* Zinc 50 */
+  --text-secondary: #D4D4D8; /* Zinc 300 */
+  --border: #52525B; /* Zinc 600 */
+}
+
+
+@layer base {
+  *, body {
+    font-family: 'DM Sans', sans-serif;
+  }
+  body {
+    transition: background-color 100ms ease, color 100ms ease, border-color 100ms ease;
+  }
+}
