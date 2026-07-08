@@ -70,8 +70,10 @@ export const CsvCenter: React.FC = () => {
 
     try {
       const res = await predictionService.uploadCSV(file, (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setProgress(percentCompleted);
+        const total = progressEvent.total ?? 0;
+        if (total > 0) {
+          setProgress(Math.round((progressEvent.loaded * 100) / total));
+        }
       });
 
       setResponse(res);
