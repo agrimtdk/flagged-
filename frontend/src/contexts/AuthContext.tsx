@@ -81,6 +81,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // On mount session check (Silent Refresh Fallback)
   useEffect(() => {
+    let isMounted = true;
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 4000);
+
     const initializeAuth = async () => {
       const token = localStorage.getItem("access_token");
       if (token) {
@@ -106,19 +111,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           clearSession();
         }
       }
-      setLoading(false);
+      clearTimeout(safetyTimer);
+      if (isMounted) setLoading(false);
     };
 
     initializeAuth();
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimer);
+    };
 
     // Axios event integrations
     const handleSessionExpired = () => {
       clearSession();
+      setLoading(false);
       addToast("Your session has expired. Please log in again.", "error");
     };
 
     const handleLogoutEvent = () => {
       clearSession();
+      setLoading(false);
     };
 
     const handleForbidden = (e: Event) => {

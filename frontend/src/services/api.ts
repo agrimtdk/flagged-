@@ -55,8 +55,9 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized errors (session expirations)
     if (status === 401 && !(originalRequest as any)._retry) {
       // If the refresh token route itself returns 401, clear credentials and redirect to login
-      if (originalRequest.url === API_ENDPOINTS.AUTH_REFRESH) {
+      if (originalRequest.url === API_ENDPOINTS.AUTH_REFRESH || originalRequest.url?.includes("/auth/refresh")) {
         localStorage.removeItem("access_token");
+        isRefreshing = false;
         window.dispatchEvent(new CustomEvent("auth-logout"));
         return Promise.reject(error);
       }
@@ -84,8 +85,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call refresh endpoint
-        const response = await api.post<{ access_token: string }>(API_ENDPOINTS.AUTH_REFRESH);
+        // Call refresh endpoint using clean axios instance to avoid interceptor deadlock
+        const response = await axios.post<{ access_token: string }>(
+          `${API_URL}${API_ENDPOINTS.AUTH_REFRESH}`,
+          {},
+          { withCredentials: true }
+        );
         const { access_token } = response.data;
         
         localStorage.setItem("access_token", access_token);
@@ -97,18 +102,18 @@ api.interceptors.response.use(
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
         }
-        isRefreshing = false;
         return api(originalRequest);
         
       } catch (refreshError) {
         // Session expired, reject queue and redirect
         processQueue(refreshError as AxiosError, null);
         localStorage.removeItem("access_token");
-        isRefreshing = false;
         
         // Fire custom event to notify AuthContext to redirect
         window.dispatchEvent(new CustomEvent("auth-session-expired"));
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

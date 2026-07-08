@@ -99,7 +99,12 @@ export const CSVUploadModal: React.FC<CSVUploadModalProps> = ({
       }
     } catch (err: any) {
       setStatus("failure");
-      const errDetail = err.response?.data?.error?.message || err.message || "Failed to process the CSV upload.";
+      const errorObj = err.response?.data?.error;
+      let errDetail = errorObj?.message || err.message || "Failed to process the CSV upload.";
+      if (errorObj?.details && Array.isArray(errorObj.details) && errorObj.details.length > 0) {
+        const detailsStr = errorObj.details.map((d: any) => `${d.field || "field"}: ${d.issue || d.message}`).join(" | ");
+        errDetail = `${errDetail} -> ${detailsStr}`;
+      }
       setErrorMessage(errDetail);
     }
   };

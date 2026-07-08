@@ -171,7 +171,7 @@ export const predictionService = {
     
     const response = await api.post<CSVUploadResponse>(API_ENDPOINTS.TRANSACTIONS_UPLOAD, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": undefined,
       },
       onUploadProgress: onProgress,
     });
