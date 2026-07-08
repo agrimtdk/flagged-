@@ -52,7 +52,30 @@ export const DashboardHome: React.FC = () => {
         predictionService.getTransactions({ page: 1, page_size: 6, dataset_id: selectedCollectionId || undefined }),
       ]);
       setSummary(sumRes);
-      setTimeline(timeRes);
+
+      // Convert backend UTC time labels (HH:MM or HH:MM:SS) to user's browser local time
+      const formattedTimeline = timeRes.map((pt) => {
+        if (pt.date && pt.date.includes(":")) {
+          const parts = pt.date.split(":");
+          const hours = parseInt(parts[0], 10);
+          const minutes = parseInt(parts[1], 10);
+          const seconds = parts[2] ? parseInt(parts[2], 10) : 0;
+          const now = new Date();
+          now.setUTCHours(hours, minutes, seconds, 0);
+          return {
+            ...pt,
+            date: now.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: parts[2] ? "2-digit" : undefined,
+              hour12: false,
+            }),
+          };
+        }
+        return pt;
+      });
+
+      setTimeline(formattedTimeline);
       setRecentTx(txRes.items);
       if (isRefresh) addToast("Dashboard telemetry refreshed.", "info");
     } catch (err) {
@@ -352,13 +375,17 @@ export const DashboardHome: React.FC = () => {
           <CardHeader className="border-b border-border bg-background/40 pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Inference Throughput & Fraud Incidence</CardTitle>
-              <span className="text-xs text-text-secondary font-mono">30-Day Aggregates</span>
+              <span className="text-xs text-text-secondary font-mono">
+                {timeline.length > 0 && timeline[0].date.includes(":")
+                  ? "Live Stream Feed (Local Time)"
+                  : "30-Day Historical Aggregates"}
+              </span>
             </div>
           </CardHeader>
           <CardContent className="p-4 flex-1 flex flex-col justify-center">
             {timeline.length === 0 ? (
               <div className="h-64 flex items-center justify-center text-text-secondary text-xs">
-                No telemetry recorded in the last 30 days. Score a transaction to populate timeline.
+                No telemetry recorded. Score a transaction to populate timeline.
               </div>
             ) : (
               <AreaChart
