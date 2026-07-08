@@ -124,6 +124,8 @@ class GoogleOAuthService:
                 }
                 
                 response = await client.post(GOOGLE_TOKEN_URL, data=data)
+                if response.status_code != 200:
+                    logger.error(f"Google token error response: {response.text}")
                 response.raise_for_status()
                 token_data = response.json()
                 
