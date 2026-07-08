@@ -76,7 +76,7 @@ export const CsvCenter: React.FC = () => {
 
       setResponse(res);
       setStatus("success");
-      await refreshCollections();
+      // await refreshCollections();
       addToast(`Batch scored successfully: ${res.processed_rows} rows processed.`, "success");
     } catch (err: any) {
       setStatus("failure");

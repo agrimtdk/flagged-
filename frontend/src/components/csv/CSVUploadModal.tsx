@@ -91,7 +91,7 @@ export const CSVUploadModal: React.FC<CSVUploadModalProps> = ({
       
       setResponse(res);
       setStatus("success");
-      await refreshCollections();
+      // await refreshCollections();
       if (onUploadSuccess) {
         onUploadSuccess(res);
       }
