@@ -89,10 +89,10 @@ export const CsvCenter: React.FC = () => {
   };
 
   const downloadSampleTemplate = () => {
-    const headers = "amount,currency,timestamp,device_id,ip_address,country,brand,source\n";
-    const row1 = "124.50,USD,2026-07-06T14:30:00Z,dev_889a,192.168.1.100,US,Visa,mobile_app\n";
-    const row2 = "8999.00,USD,2026-07-06T14:31:12Z,dev_anon_3,45.33.22.11,RU,Mastercard,web_checkout\n";
-    const row3 = "12.99,EUR,2026-07-06T14:32:45Z,dev_442b,82.102.21.5,DE,Amex,api\n";
+    const headers = "transaction_external_id,amount,card_brand,billing_country,ip_address,device_type,email_domain,card_country\n";
+    const row1 = "tx_1001,124.50,VISA,USA,192.168.1.100,mobile,gmail.com,USA\n";
+    const row2 = "tx_1002,8999.00,MASTERCARD,GBR,45.33.22.11,desktop,yahoo.com,GBR\n";
+    const row3 = "tx_1003,12.99,AMEX,DEU,82.102.21.5,tablet,company.org,DEU\n";
     
     const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + row1 + row2 + row3);
     const link = document.createElement("a");
