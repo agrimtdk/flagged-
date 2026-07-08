@@ -5,7 +5,7 @@ import { CSVProgressBar } from "./CSVProgressBar";
 import { CSVValidationErrors } from "./CSVValidationErrors";
 import { predictionService, CSVUploadResponse } from "../../services/predict";
 import { Upload, CheckCircle2, XCircle, FileText, Download, RefreshCw } from "lucide-react";
-import { useDataset } from "../../contexts/DatasetContext";
+// import { useDataset } from "../../contexts/DatasetContext";
 
 export interface CSVUploadModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ export const CSVUploadModal: React.FC<CSVUploadModalProps> = ({
   onClose,
   onUploadSuccess,
 }) => {
-  const { refreshCollections } = useDataset();
+  // const { refreshCollections } = useDataset();
   const [file, setFile] = React.useState<File | null>(null);
   const [dragActive, setDragActive] = React.useState(false);
   const [status, setStatus] = React.useState<"idle" | "uploading" | "success" | "failure">("idle");

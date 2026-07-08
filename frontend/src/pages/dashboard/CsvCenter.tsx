@@ -7,10 +7,10 @@ import { CSVProgressBar } from "../../components/csv/CSVProgressBar";
 import { CSVValidationErrors } from "../../components/csv/CSVValidationErrors";
 import { predictionService, CSVUploadResponse } from "../../services/predict";
 import { useToast } from "../../contexts/ToastContext";
-import { useDataset } from "../../contexts/DatasetContext";
+// import { useDataset } from "../../contexts/DatasetContext";
 
 export const CsvCenter: React.FC = () => {
-  const { refreshCollections } = useDataset();
+  // const { refreshCollections } = useDataset();
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "failure">("idle");
