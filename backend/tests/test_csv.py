@@ -123,3 +123,17 @@ async def test_csv_schema_unknown_columns(db_session):
         await service.process_upload(uuid.uuid4(), upload_file)
     
     assert exc.value.code == "UNKNOWN_COLUMNS"
+
+
+@pytest.mark.asyncio
+async def test_csv_invalid_format_extension(db_session):
+    mock_ml = MagicMock()
+    mock_ml.version = "v1.0.0"
+    upload_file = UploadFile(
+        filename="test.txt",
+        file=io.BytesIO(b"data")
+    )
+    service = CSVService(db_session, mock_ml)
+    with pytest.raises(AppException) as exc:
+        await service.process_upload(uuid.uuid4(), upload_file)
+    assert exc.value.code == "INVALID_FILE_FORMAT"

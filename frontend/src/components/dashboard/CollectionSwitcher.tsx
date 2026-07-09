@@ -63,7 +63,7 @@ export const CollectionSwitcher: React.FC = () => {
 
           <div className="my-1 border-t border-border/40" />
 
-          <div className="max-h-60 overflow-y-auto">
+          <div className="max-h-60 overflow-y-auto pr-1 custom-scrollbar">
             {loading ? (
               <div className="px-3 py-4 text-center text-xs text-text-secondary">Loading collections...</div>
             ) : collections.length === 0 ? (

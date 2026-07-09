@@ -47,4 +47,8 @@ export const collectionService = {
     const response = await api.get<CollectionItem>(`${API_ENDPOINTS.COLLECTIONS}/${id}`);
     return response.data;
   },
+
+  async deleteCollection(id: string): Promise<void> {
+    await api.delete(`${API_ENDPOINTS.COLLECTIONS}/${id}`);
+  },
 };

@@ -65,7 +65,8 @@ class CommonSettings(BaseSettings):
             "artifacts"
         )
     )
-    CSV_MAX_ROWS: int = 50000
+    CSV_MAX_ROWS: int = 100000
+    CSV_MAX_FILES_PER_USER: int = 10
     CSV_MAX_SIZE_BYTES: int = 10 * 1024 * 1024  # 10MB
     SHOW_DEBUG_INFO: bool = True
 

@@ -162,7 +162,7 @@ export const Analytics: React.FC = () => {
           }`}
         >
           <Zap className="h-4 w-4" />
-          <span>Pipeline Latency & SLA</span>
+          <span>Inference Engine Latency & SLA</span>
         </button>
         <button
           onClick={() => setActiveTab("segmentation")}

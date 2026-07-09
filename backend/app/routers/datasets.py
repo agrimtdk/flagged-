@@ -61,3 +61,27 @@ async def get_collection(
     org_id = uuid.UUID(org_id_str)
     service = DatasetService(db)
     return await service.get_collection(collection_id, org_id)
+
+
+@router.delete("/collections/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/datasets/{collection_id}", status_code=status.HTTP_204_NO_CONTENT, include_in_schema=False)
+async def delete_collection(
+    collection_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    claims: dict = requires_permission("analytics:read"),
+):
+    """
+    Deletes a specific data collection and its associated transactions.
+    """
+    org_id_str = claims.get("org_id")
+    if not org_id_str:
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="BAD_REQUEST",
+            message="No organization bound to this session."
+        )
+
+    org_id = uuid.UUID(org_id_str)
+    service = DatasetService(db)
+    await service.delete_collection(collection_id, org_id)
+    return None

@@ -49,6 +49,21 @@ class CSVService:
         start_time = time.perf_counter()
         dataset_service = DatasetService(self.db)
 
+        if file.filename and not file.filename.lower().endswith(".csv"):
+            raise AppException(
+                status_code=400,
+                code="INVALID_FILE_FORMAT",
+                message="Accepted format is CSV (.csv)."
+            )
+
+        existing_collections = await dataset_service.list_collections(org_id, source="CSV", limit=100)
+        if len(existing_collections) >= settings.CSV_MAX_FILES_PER_USER:
+            raise AppException(
+                status_code=400,
+                code="MAX_FILES_EXCEEDED",
+                message=f"Maximum files limit reached ({settings.CSV_MAX_FILES_PER_USER} files). Please delete or archive existing CSV collections before uploading more."
+            )
+
         # 1. Enforce size limits (10MB)
         content = await file.read(settings.CSV_MAX_SIZE_BYTES + 1)
         if len(content) > settings.CSV_MAX_SIZE_BYTES:

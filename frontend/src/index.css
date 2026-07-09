@@ -33,3 +33,61 @@
     transition: background-color 100ms ease, color 100ms ease, border-color 100ms ease;
   }
 }
+
+/* Professional Sleek Scrollbars matching Mint (Light) & Yellow (Dark) Aesthetics */
+
+/* Only apply standard CSS scrollbars on non-WebKit browsers (like Firefox) */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: rgba(161, 161, 170, 0.4) transparent;
+  }
+}
+
+/* Universal WebKit Scrollbars (Chrome, Edge, Safari, Opera) */
+::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.45);
+  border-radius: 9999px;
+}
+
+/* Light Mode: Hovering & Sliding (Active) -> Mint Green (#10B981) */
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active,
+*::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:active {
+  background-color: #10B981 !important;
+}
+
+/* Dark Mode: Hovering & Sliding (Active) -> Pastel Yellow (#FEF08A) */
+.dark ::-webkit-scrollbar-thumb:hover,
+.dark ::-webkit-scrollbar-thumb:active,
+.dark *::-webkit-scrollbar-thumb:hover,
+.dark *::-webkit-scrollbar-thumb:active {
+  background-color: #FEF08A !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.45);
+  border-radius: 9999px;
+}

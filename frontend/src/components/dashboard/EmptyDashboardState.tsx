@@ -37,7 +37,7 @@ export const EmptyDashboardState: React.FC = () => {
               Upload CSV Collection
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-text-secondary leading-relaxed">
-              Upload historical transaction datasets in CSV format. Our automated ML pipeline will parse, score, and categorize transactions in seconds.
+              Upload historical transaction datasets in CSV format. Our automated fraud detection pipeline will parse, score, and categorize transactions in seconds.
             </p>
             <ul className="mt-4 space-y-2 text-xs text-text-secondary/80">
               <li className="flex items-center gap-2">

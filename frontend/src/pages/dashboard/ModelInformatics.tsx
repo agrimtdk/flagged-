@@ -573,7 +573,7 @@ export const ModelInformatics: React.FC = () => {
               </div>
             </div>
             <div className="flex flex-col gap-1 mt-1">
-              <span className="font-sans text-[10px] text-text-secondary uppercase font-bold">Pipeline Summary</span>
+              <span className="font-sans text-[10px] text-text-secondary uppercase font-bold">Feature Processing Pipeline Summary</span>
               <p className="font-sans text-[11px] text-text-secondary leading-normal">{training.feature_engineering_pipeline_summary}</p>
             </div>
           </CardContent>

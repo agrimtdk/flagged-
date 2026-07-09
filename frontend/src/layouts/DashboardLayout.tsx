@@ -82,7 +82,7 @@ export const DashboardLayout: React.FC = () => {
         </header>
 
         {/* Content Outlet */}
-        <main className="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto custom-scrollbar">
           <Outlet />
           <GlobalSearchModal />
         </main>

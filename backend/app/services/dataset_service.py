@@ -1,9 +1,12 @@
 import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.dataset import Dataset
+from app.models.transaction import Transaction
 from app.repositories.dataset import DatasetRepository
+from app.core.redis import redis_manager
 from app.exceptions import AppException
 from fastapi import status
 
@@ -128,3 +131,30 @@ class DatasetService:
         limit: int = 100
     ) -> List[Dataset]:
         return await self.repo.list_by_org(org_id, source=source, status=status_str, limit=limit)
+
+    async def delete_collection(self, dataset_id: uuid.UUID, org_id: uuid.UUID) -> bool:
+        dataset = await self.get_collection(dataset_id, org_id)
+
+        # 1. Delete all transactions belonging to this dataset / batch
+        await self.db.execute(
+            delete(Transaction).where(
+                Transaction.organization_id == org_id,
+                (Transaction.dataset_id == dataset.id) | (Transaction.batch_id == dataset.id)
+            )
+        )
+
+        # 2. Delete the dataset itself
+        await self.repo.delete(dataset.id)
+        await self.db.commit()
+
+        # 3. Invalidate Redis analytics cache for this tenant so stats update immediately
+        if redis_manager.client:
+            try:
+                pattern = f"analytics:{org_id}:*"
+                keys = await redis_manager.client.keys(pattern)
+                if keys:
+                    await redis_manager.client.delete(*keys)
+            except Exception:
+                pass
+
+        return True

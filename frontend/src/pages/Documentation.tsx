@@ -13,7 +13,7 @@ export const Documentation: React.FC = () => {
           Developer Documentation
         </h1>
         <p className="text-text-secondary leading-relaxed">
-          Learn how to integrate the <strong>flagged!</strong> real-time scoring endpoint into your custom shopping cart or checkout pipelines.
+          Learn how to integrate the <strong>flagged!</strong> real-time scoring endpoint into your custom shopping cart or checkout flows.
         </p>
 
         {/* Auth Details */}
