@@ -38,3 +38,11 @@ class UserService:
 
     async def get_user(self, user_id: uuid.UUID) -> Optional[User]:
         return await self.user_repo.get(user_id)
+
+    async def update_user_profile(self, user_id: uuid.UUID, full_name: str) -> Optional[User]:
+        user = await self.user_repo.get(user_id)
+        if not user:
+            return None
+        user.full_name = full_name.strip()
+        await self.db.flush()
+        return user

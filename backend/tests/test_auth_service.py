@@ -34,3 +34,18 @@ async def test_organization_bootstrapping_and_login(db_session):
     # Confirm no new organizations were created
     all_orgs = await org_repo.get_all()
     assert len(all_orgs) == 1
+
+
+@pytest.mark.asyncio
+async def test_update_user_profile(db_session):
+    from app.services.user_service import UserService
+    auth_service = AuthService(db_session)
+    user_service = UserService(db_session)
+
+    email = "editor@acme.com"
+    mock_code = f"mock_code_{email}"
+    _, _, user = await auth_service.login_with_google(mock_code)
+
+    updated_user = await user_service.update_user_profile(user.id, "Agrim Sharma")
+    assert updated_user is not None
+    assert updated_user.full_name == "Agrim Sharma"

@@ -37,4 +37,9 @@ export const authService = {
     const response = await api.get<UserProfile>(API_ENDPOINTS.AUTH_ME);
     return response.data;
   },
+
+  async updateProfile(fullName: string): Promise<UserProfile> {
+    const response = await api.patch<UserProfile>(API_ENDPOINTS.AUTH_ME, { full_name: fullName });
+    return response.data;
+  },
 };

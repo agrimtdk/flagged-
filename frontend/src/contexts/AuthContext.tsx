@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
+  updateUser: (updatedUser: UserProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +43,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearSession();
       throw e;
     }
+  };
+
+  const updateUser = (updatedUser: UserProfile) => {
+    setUser(updatedUser);
   };
 
   const login = async (code: string) => {
@@ -171,6 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         refreshUserProfile,
+        updateUser,
       }}
     >
       {children}

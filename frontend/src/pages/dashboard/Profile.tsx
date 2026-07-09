@@ -8,9 +8,10 @@ import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
+import { authService } from "../../services/auth";
 
 export const Profile: React.FC = () => {
-  const { user, org } = useAuth();
+  const { user, org, updateUser } = useAuth();
   const [name, setName] = useState(user?.full_name || "Agrim Sharma");
   const [email, setEmail] = useState(user?.email || "agrim@acme-corp.com");
   const [submitting, setSubmitting] = useState(false);
@@ -24,13 +25,23 @@ export const Profile: React.FC = () => {
     }
   }, [user]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim()) {
+      addToast("Full Name cannot be empty.", "error");
+      return;
+    }
     setSubmitting(true);
-    setTimeout(() => {
+    try {
+      const updatedUser = await authService.updateProfile(name.trim());
+      updateUser(updatedUser);
+      addToast("Full Name updated successfully!", "success");
+    } catch (err: any) {
+      console.error("Failed to update profile:", err);
+      addToast(err.response?.data?.error?.message || "Failed to update profile.", "error");
+    } finally {
       setSubmitting(false);
-      addToast("Profile preferences and notification rules saved successfully.", "success");
-    }, 600);
+    }
   };
 
   const getRoleBadge = (role?: string) => {
@@ -133,7 +144,7 @@ export const Profile: React.FC = () => {
                     Your changes will synchronize across all active dashboard nodes.
                   </span>
                   <Button type="submit" variant="primary" disabled={submitting} className="bg-accent text-accent-foreground font-bold px-6">
-                    {submitting ? "Saving..." : "Save Preferences"}
+                    {submitting ? "Saving..." : "Save Changes"}
                   </Button>
                 </div>
               </form>

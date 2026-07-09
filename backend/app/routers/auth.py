@@ -1,7 +1,8 @@
+import uuid
 import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, Request, Response, Header, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.rbac import get_current_user_claims
@@ -32,6 +33,10 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=100)
 
 
 def set_refresh_cookie(response: Response, refresh_token: str):
@@ -171,6 +176,41 @@ async def get_my_profile(
             message="User profile was not located."
         )
         
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "full_name": user.full_name,
+        "role": user.role,
+        "avatar_url": user.avatar_url
+    }
+
+
+@router.patch("/me", response_model=UserResponse)
+@router.put("/me", response_model=UserResponse)
+async def update_my_profile(
+    payload: UpdateProfileRequest,
+    claims: dict = Depends(get_current_user_claims),
+    db: AsyncSession = Depends(get_db)
+):
+    full_name = payload.full_name.strip()
+    if not full_name:
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="INVALID_NAME",
+            message="Full name cannot be empty."
+        )
+    user_service = UserService(db)
+    user_id = uuid.UUID(str(claims["sub"]))
+    user = await user_service.update_user_profile(user_id, full_name)
+    if not user:
+        raise AppException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="USER_NOT_FOUND",
+            message="User profile was not located."
+        )
+    await db.commit()
+    await db.refresh(user)
+
     return {
         "id": str(user.id),
         "email": user.email,
