@@ -201,6 +201,7 @@ class CSVService:
 
         fraud_detected = 0
         processed_rows = len(valid_transactions)
+        scored_transactions = []
 
         if processed_rows > 0:
             try:

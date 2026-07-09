@@ -174,6 +174,7 @@ export const predictionService = {
         "Content-Type": undefined,
       },
       onUploadProgress: onProgress,
+      timeout: 180000,
     });
     return response.data;
   },

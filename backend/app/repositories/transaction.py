@@ -81,15 +81,17 @@ class TransactionRepository(BaseRepository[Transaction]):
 
         return items, total_items
 
-    async def bulk_create(self, transactions: List[Transaction]) -> int:
+    async def bulk_create(self, transactions: List[Transaction], chunk_size: int = 5000) -> int:
         """
-        Bulk inserts transactions using session.add_all.
+        Bulk inserts transactions using session.add_all in manageable chunks.
         Does not commit; flush changes to check constraints.
         """
         if not transactions:
             return 0
-        self.db.add_all(transactions)
-        await self.db.flush()
+        for i in range(0, len(transactions), chunk_size):
+            chunk = transactions[i:i + chunk_size]
+            self.db.add_all(chunk)
+            await self.db.flush()
         return len(transactions)
 
     async def get_analytics_summary_raw(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None) -> Dict[str, Any]:

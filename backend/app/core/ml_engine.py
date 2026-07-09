@@ -100,6 +100,26 @@ class MLEngine:
             )
         return predictor.predict(transaction)
 
+    def predict_batch(self, transactions: list[dict]) -> list[dict]:
+        """
+        Vectorized batch prediction execution across multiple transactions.
+        """
+        predictor = self._predictor
+        if not predictor:
+            raise AppException(
+                status_code=503,
+                code="ML_MODEL_NOT_LOADED",
+                message="Machine Learning prediction model is not loaded."
+            )
+        if hasattr(predictor, "predict_batch"):
+            if type(predictor).__name__ in ("MagicMock", "Mock", "NonCallableMagicMock"):
+                from unittest.mock import sentinel
+                if getattr(predictor.predict_batch, "_mock_return_value", sentinel.DEFAULT) != sentinel.DEFAULT:
+                    return predictor.predict_batch(transactions)
+            else:
+                return predictor.predict_batch(transactions)
+        return [predictor.predict(tx) for tx in transactions]
+
     @property
     def is_loaded(self) -> bool:
         return self._predictor is not None

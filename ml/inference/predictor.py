@@ -128,3 +128,87 @@ class FraudPredictor:
                 "reasons": reasons
             }
         }
+
+    def predict_batch(self, transactions: list[dict]) -> list[dict]:
+        """
+        Vectorized batch prediction for a list of transaction dictionaries.
+        Preprocesses all transaction payloads in a single DataFrame, executes CatBoost prediction,
+        applies optimal threshold, and returns structured decision objects with explanations.
+        """
+        if not transactions:
+            return []
+
+        tx_list = []
+        now_iso = datetime.now(timezone.utc).isoformat()
+        for tx in transactions:
+            self.validate_inputs(tx)
+            row = tx.copy()
+            if "created_at" not in row or not row["created_at"]:
+                row["created_at"] = now_iso
+            tx_list.append(row)
+
+        df_raw = pd.DataFrame(tx_list)
+
+        # Vectorized transform on entire batch
+        X = self.preprocessor.transform(df_raw)
+
+        # Vectorized probability calculation on entire batch
+        probs = self.model.predict_proba(X)[:, 1]
+
+        X_records = X.to_dict('records')
+        results = []
+        global_fraud_rate = getattr(self.preprocessor, 'global_fraud_rate', 0.05)
+
+        for i, prob_val in enumerate(probs):
+            prob = float(prob_val)
+            is_fraud = prob >= self.optimal_threshold
+            row_dict = X_records[i]
+
+            reasons = []
+            for col in self.feature_columns:
+                val = float(row_dict.get(col, 0.0))
+                importance = self.feature_importances.get(col, 0.0)
+                if val > 0 and importance > 0:
+                    feature_name = col
+                    if col == "ip_card_country_match" and val == 0:
+                        feature_name = "ip_card_country_mismatch"
+                        reasons.append({
+                            "feature": feature_name,
+                            "impact": round(importance * 1.5, 3)
+                        })
+                    elif col == "email_domain_te" and val > global_fraud_rate:
+                        feature_name = "high_risk_email_domain"
+                        reasons.append({
+                            "feature": feature_name,
+                            "impact": round(importance * val, 3)
+                        })
+                    elif col == "card_country_te" and val > global_fraud_rate:
+                        feature_name = "high_risk_card_country"
+                        reasons.append({
+                            "feature": feature_name,
+                            "impact": round(importance * val, 3)
+                        })
+                    elif col == "amount" and val > 500.0:
+                        feature_name = "high_transaction_amount"
+                        reasons.append({
+                            "feature": feature_name,
+                            "impact": round(importance * (val / 500.0), 3)
+                        })
+
+            reasons = sorted(reasons, key=lambda x: x["impact"], reverse=True)[:3]
+            if not reasons:
+                reasons.append({
+                    "feature": "base_rate_probability",
+                    "impact": round(prob, 3)
+                })
+
+            results.append({
+                "risk_score": round(prob, 4),
+                "is_fraud": bool(is_fraud),
+                "prediction_details": {
+                    "reasons": reasons
+                }
+            })
+
+        return results
+
