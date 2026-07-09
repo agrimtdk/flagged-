@@ -1,0 +1,32 @@
+{
+    "model_version": "v1.1.0",
+    "model_type": "CatBoost",
+    "trained_timestamp": "2026-07-10T02:15:00.000000",
+    "optimal_threshold": 0.5,
+    "features": [
+        "amount",
+        "hour_of_day",
+        "day_of_week",
+        "ip_card_country_match",
+        "email_domain_te",
+        "card_country_te",
+        "brand_visa",
+        "brand_mastercard",
+        "brand_amex",
+        "brand_discover",
+        "brand_other",
+        "device_desktop",
+        "device_mobile",
+        "device_tablet",
+        "device_other"
+    ],
+    "metrics": {
+        "validation_pr_auc": 0.3801449473120958,
+        "inference_latency_ms": 0.05
+    },
+    "best_parameters": {
+        "learning_rate": 0.01,
+        "iterations": 200,
+        "depth": 4
+    }
+}

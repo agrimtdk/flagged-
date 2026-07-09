@@ -12,7 +12,7 @@ from app.repositories.transaction import TransactionRepository
 async def test_prediction_service_single(db_session):
     # Mock MLEngine
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     mock_ml.threshold = 0.5
     mock_ml.predict.return_value = {
         "risk_score": 0.12,
@@ -38,7 +38,7 @@ async def test_prediction_service_single(db_session):
     assert res.transaction_external_id == "tx_test_001"
     assert res.risk_score == 0.12
     assert res.is_fraud is False
-    assert res.model_version == "v1.0.0"
+    assert res.model_version == "v1.1.0"
     assert res.prediction_latency_ms is not None
 
     # Query DB to check if persisted
@@ -53,7 +53,7 @@ async def test_prediction_service_single(db_session):
 @pytest.mark.asyncio
 async def test_prediction_batch(db_session):
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     mock_ml.threshold = 0.5
     mock_ml.predict.return_value = {
         "risk_score": 0.85,

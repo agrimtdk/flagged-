@@ -43,7 +43,7 @@ async def check_redis_health() -> Tuple[str, float]:
 def check_ml_health() -> Tuple[str, Dict[str, Any]]:
     if settings.ENV == "testing":
         return "up", {
-            "version": "v1.0.0",
+            "version": "v1.1.0",
             "threshold": 0.50,
             "status": "loaded_and_verified"
         }

@@ -56,7 +56,7 @@ class CommonSettings(BaseSettings):
     # Machine Learning Settings
     MODEL_PATH: str = "app/models/v1.0.2/model.json"
     DECISION_THRESHOLD: float = 0.32
-    MODEL_VERSION: str = "v1.0.0"
+    MODEL_VERSION: str = "v1.1.0"
     ML_ARTIFACT_DIR: str = os.getenv(
         "ML_ARTIFACT_DIR",
         os.path.join(

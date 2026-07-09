@@ -10,7 +10,7 @@ from app.exceptions import AppException
 @pytest.mark.asyncio
 async def test_csv_validation_success(db_session):
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     mock_ml.threshold = 0.5
     mock_ml.predict.return_value = {
         "risk_score": 0.02,
@@ -49,7 +49,7 @@ async def test_csv_validation_success(db_session):
 @pytest.mark.asyncio
 async def test_csv_validation_row_errors(db_session):
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     mock_ml.threshold = 0.5
     
     # Setup CSV data with some row-level validation errors
@@ -84,7 +84,7 @@ async def test_csv_validation_row_errors(db_session):
 @pytest.mark.asyncio
 async def test_csv_schema_duplicate_columns(db_session):
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     mock_ml.threshold = 0.5
     csv_data = (
         "transaction_external_id,amount,card_brand,billing_country,ip_address,device_type,email_domain,card_country,amount\n"
@@ -106,7 +106,7 @@ async def test_csv_schema_duplicate_columns(db_session):
 @pytest.mark.asyncio
 async def test_csv_schema_unknown_columns(db_session):
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     mock_ml.threshold = 0.5
     csv_data = (
         "transaction_external_id,amount,card_brand,billing_country,ip_address,device_type,email_domain,card_country,extra_col\n"
@@ -128,7 +128,7 @@ async def test_csv_schema_unknown_columns(db_session):
 @pytest.mark.asyncio
 async def test_csv_invalid_format_extension(db_session):
     mock_ml = MagicMock()
-    mock_ml.version = "v1.0.0"
+    mock_ml.version = "v1.1.0"
     upload_file = UploadFile(
         filename="test.txt",
         file=io.BytesIO(b"data")

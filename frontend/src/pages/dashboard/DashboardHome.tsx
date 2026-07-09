@@ -165,7 +165,7 @@ export const DashboardHome: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-text-secondary mt-0.5">
-              Active Model: <span className="font-mono text-text-primary font-bold">CatBoost v1.0.0</span> • Avg Latency: <span className="font-mono text-accent font-bold">1.02ms</span> • Node: <span className="font-mono text-text-secondary">us-east-cluster</span>
+              Active Model: <span className="font-mono text-text-primary font-bold">CatBoost v1.1.0</span> • Avg Latency: <span className="font-mono text-accent font-bold">0.15ms</span> • Node: <span className="font-mono text-text-secondary">us-east-cluster</span>
             </p>
           </div>
         </div>
@@ -301,7 +301,7 @@ export const DashboardHome: React.FC = () => {
                 <span>Live Evaluation Bench</span>
               </CardTitle>
               <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-accent/15 text-accent font-bold">
-                Runtime v1.0.0
+                Runtime v1.1.0
               </span>
             </div>
           </CardHeader>

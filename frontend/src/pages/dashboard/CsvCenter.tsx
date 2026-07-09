@@ -259,7 +259,7 @@ export const CsvCenter: React.FC = () => {
                     <CSVProgressBar progress={progress} />
                   </div>
                   <div className="space-y-1">
-                    <h4 className="font-bold text-sm text-text-primary">Evaluating Transactions via v1.0.0 Fraud Detection Pipeline...</h4>
+                    <h4 className="font-bold text-sm text-text-primary">Evaluating Transactions via v1.1.0 Fraud Detection Pipeline...</h4>
                     <p className="text-xs text-text-secondary">Computing risk scores, assigning categories, and archiving to audited storage.</p>
                   </div>
                 </div>

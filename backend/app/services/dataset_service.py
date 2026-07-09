@@ -27,7 +27,7 @@ class DatasetService:
         total_rows: int = 0,
         fraud_count: int = 0,
         avg_risk_score: float = 0.0,
-        model_version: str = "v1.0.0",
+        model_version: str = "v1.1.0",
         threshold_version: str = "v1.0.0",
         feature_schema_version: str = "v1.0.0",
         processing_duration_ms: Optional[float] = None,
@@ -63,7 +63,7 @@ class DatasetService:
         org_id: uuid.UUID,
         session_name: Optional[str] = None,
         created_by: str = "API Client",
-        model_version: str = "v1.0.0",
+        model_version: str = "v1.1.0",
         threshold_version: str = "v1.0.0",
         feature_schema_version: str = "v1.0.0",
     ) -> Dataset:

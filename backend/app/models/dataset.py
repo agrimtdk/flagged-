@@ -23,7 +23,7 @@ class Dataset(Base, UUIDPrimaryKeyMixin, TimestampMixin, VersionedMixin):
     total_rows: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     fraud_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     avg_risk_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    model_version: Mapped[str] = mapped_column(String(50), nullable=False, default="v1.0.0")
+    model_version: Mapped[str] = mapped_column(String(50), nullable=False, default="v1.1.0")
     threshold_version: Mapped[str] = mapped_column(String(50), nullable=False, default="v1.0.0")
     feature_schema_version: Mapped[str] = mapped_column(String(50), nullable=False, default="v1.0.0")
     processing_duration_ms: Mapped[Optional[float]] = mapped_column(Float, nullable=True)

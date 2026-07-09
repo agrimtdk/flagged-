@@ -233,7 +233,7 @@ export const Analytics: React.FC = () => {
                   <span>Model Governance & Cost Utility Matrix</span>
                 </CardTitle>
                 <span className="text-[11px] font-mono uppercase px-2.5 py-1 rounded bg-accent/15 text-accent font-bold">
-                  CatBoost v1.0.0
+                  CatBoost v1.1.0
                 </span>
               </div>
             </CardHeader>
