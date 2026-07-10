@@ -94,7 +94,7 @@ class TransactionRepository(BaseRepository[Transaction]):
             await self.db.flush()
         return len(transactions)
 
-    async def get_analytics_summary_raw(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None) -> Dict[str, Any]:
+    async def get_analytics_summary_raw(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, threshold: Optional[float] = None) -> Dict[str, Any]:
         """
         Retrieves aggregated transaction metrics in a single round trip, scoped by organization_id and optional dataset_id.
         """
@@ -106,9 +106,11 @@ class TransactionRepository(BaseRepository[Transaction]):
         if dataset_id:
             conditions.append(Transaction.dataset_id == dataset_id)
 
+        fraud_cond = (Transaction.risk_score >= threshold) if threshold is not None else (Transaction.is_fraud == True)
+
         query = select(
             func.count(Transaction.id).label("total_transactions"),
-            func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("total_fraud"),
+            func.sum(case((fraud_cond, 1), else_=0)).label("total_fraud"),
             func.avg(Transaction.risk_score).label("avg_risk_score"),
             func.sum(case((Transaction.created_at >= start_of_today, 1), else_=0)).label("transactions_today"),
             func.sum(case((Transaction.created_at >= start_of_week, 1), else_=0)).label("transactions_this_week")
@@ -140,15 +142,17 @@ class TransactionRepository(BaseRepository[Transaction]):
             "transactions_this_week": int(row.transactions_this_week or 0)
         }
 
-    async def get_top_billing_countries(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_top_billing_countries(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, limit: int = 10, threshold: Optional[float] = None) -> List[Dict[str, Any]]:
         conditions = [Transaction.organization_id == org_id]
         if dataset_id:
             conditions.append(Transaction.dataset_id == dataset_id)
 
+        fraud_cond = (Transaction.risk_score >= threshold) if threshold is not None else (Transaction.is_fraud == True)
+
         query = select(
             Transaction.billing_country,
             func.count(Transaction.id).label("count"),
-            func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud_count")
+            func.sum(case((fraud_cond, 1), else_=0)).label("fraud_count")
         ).where(*conditions).group_by(
             Transaction.billing_country
         ).order_by(
@@ -161,15 +165,17 @@ class TransactionRepository(BaseRepository[Transaction]):
             for row in result.all()
         ]
 
-    async def get_top_card_brands(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None) -> List[Dict[str, Any]]:
+    async def get_top_card_brands(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, threshold: Optional[float] = None) -> List[Dict[str, Any]]:
         conditions = [Transaction.organization_id == org_id]
         if dataset_id:
             conditions.append(Transaction.dataset_id == dataset_id)
 
+        fraud_cond = (Transaction.risk_score >= threshold) if threshold is not None else (Transaction.is_fraud == True)
+
         query = select(
             Transaction.card_brand,
             func.count(Transaction.id).label("count"),
-            func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud_count")
+            func.sum(case((fraud_cond, 1), else_=0)).label("fraud_count")
         ).where(*conditions).group_by(
             Transaction.card_brand
         ).order_by(
@@ -199,14 +205,16 @@ class TransactionRepository(BaseRepository[Transaction]):
         result = await self.db.execute(query)
         return [{"device_type": row.device_type, "count": row.count} for row in result.all()]
 
-    async def get_fraud_by_device(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None) -> List[Dict[str, Any]]:
+    async def get_fraud_by_device(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, threshold: Optional[float] = None) -> List[Dict[str, Any]]:
         conditions = [Transaction.organization_id == org_id]
         if dataset_id:
             conditions.append(Transaction.dataset_id == dataset_id)
 
+        fraud_cond = (Transaction.risk_score >= threshold) if threshold is not None else (Transaction.is_fraud == True)
+
         query = select(
             Transaction.device_type,
-            func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud_count"),
+            func.sum(case((fraud_cond, 1), else_=0)).label("fraud_count"),
             func.count(Transaction.id).label("total")
         ).where(*conditions).group_by(
             Transaction.device_type
@@ -224,19 +232,21 @@ class TransactionRepository(BaseRepository[Transaction]):
             for row in result.all()
         ]
 
-    async def get_fraud_by_country(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_fraud_by_country(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, limit: int = 10, threshold: Optional[float] = None) -> List[Dict[str, Any]]:
         conditions = [Transaction.organization_id == org_id]
         if dataset_id:
             conditions.append(Transaction.dataset_id == dataset_id)
 
+        fraud_cond = (Transaction.risk_score >= threshold) if threshold is not None else (Transaction.is_fraud == True)
+
         query = select(
             Transaction.billing_country,
-            func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud_count"),
+            func.sum(case((fraud_cond, 1), else_=0)).label("fraud_count"),
             func.count(Transaction.id).label("total")
         ).where(*conditions).group_by(
             Transaction.billing_country
         ).order_by(
-            func.sum(case((Transaction.is_fraud == True, 1), else_=0)).desc()
+            func.sum(case((fraud_cond, 1), else_=0)).desc()
         ).limit(limit)
 
         result = await self.db.execute(query)
@@ -265,7 +275,7 @@ class TransactionRepository(BaseRepository[Transaction]):
             dist[row.source] = row.count
         return dist
 
-    async def get_fraud_timeline(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, days: int = 30) -> List[Dict[str, Any]]:
+    async def get_fraud_timeline(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None, days: int = 30, threshold: Optional[float] = None) -> List[Dict[str, Any]]:
         now = datetime.now(timezone.utc)
         start_date = now - timedelta(days=days - 1)
         start_date_trunc = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -276,6 +286,8 @@ class TransactionRepository(BaseRepository[Transaction]):
         ]
         if dataset_id:
             conditions.append(Transaction.dataset_id == dataset_id)
+
+        fraud_cond = (Transaction.risk_score >= threshold) if threshold is not None else (Transaction.is_fraud == True)
 
         is_api_mode = False
         if dataset_id:
@@ -289,7 +301,7 @@ class TransactionRepository(BaseRepository[Transaction]):
             query = select(
                 date_expr_min.label("date"),
                 func.count(Transaction.id).label("total"),
-                func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud"),
+                func.sum(case((fraud_cond, 1), else_=0)).label("fraud"),
                 func.avg(Transaction.risk_score).label("avg_risk")
             ).where(*conditions).group_by(
                 date_expr_min
@@ -303,7 +315,7 @@ class TransactionRepository(BaseRepository[Transaction]):
                 query = select(
                     date_expr_sec.label("date"),
                     func.count(Transaction.id).label("total"),
-                    func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud"),
+                    func.sum(case((fraud_cond, 1), else_=0)).label("fraud"),
                     func.avg(Transaction.risk_score).label("avg_risk")
                 ).where(*conditions).group_by(
                     date_expr_sec
@@ -316,7 +328,7 @@ class TransactionRepository(BaseRepository[Transaction]):
             query = select(
                 func.cast(Transaction.created_at, Date).label("date"),
                 func.count(Transaction.id).label("total"),
-                func.sum(case((Transaction.is_fraud == True, 1), else_=0)).label("fraud"),
+                func.sum(case((fraud_cond, 1), else_=0)).label("fraud"),
                 func.avg(Transaction.risk_score).label("avg_risk")
             ).where(*conditions).group_by(
                 func.cast(Transaction.created_at, Date)

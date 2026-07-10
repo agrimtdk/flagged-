@@ -25,6 +25,16 @@ async def lifespan(app: FastAPI):
     from app.core.ml_engine import ml_engine
     ml_engine.initialize(version=settings.MODEL_VERSION, artifact_dir=settings.ML_ARTIFACT_DIR)
     
+    # Ensure database schema has risk_threshold column
+    try:
+        from app.core.database import async_session_factory
+        from sqlalchemy import text
+        async with async_session_factory() as session:
+            await session.execute(text("ALTER TABLE organizations ADD COLUMN IF NOT EXISTS risk_threshold FLOAT NOT NULL DEFAULT 0.50"))
+            await session.commit()
+    except Exception as e:
+        logger.warning(f"Schema migration note: {e}")
+
     logger.info("Application starting up...", extra={"version": settings.VERSION, "env": settings.ENV})
     
     yield

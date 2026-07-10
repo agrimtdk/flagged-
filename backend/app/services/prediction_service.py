@@ -29,12 +29,21 @@ class PredictionService:
         self.ml_engine = ml_engine
         self.repo = TransactionRepository(db)
 
+    async def _get_org_threshold(self, org_id: uuid.UUID) -> float:
+        from app.models.organization import Organization
+        org = await self.db.get(Organization, org_id)
+        if org and getattr(org, "risk_threshold", None) is not None:
+            return float(org.risk_threshold)
+        return float(self.ml_engine.threshold or 0.50)
+
     async def predict_single(
         self, org_id: uuid.UUID, request: PredictRequest, source: str = "API", created_by: str = "API Client"
     ) -> PredictResponse:
         from app.services.dataset_service import DatasetService
         prediction_id = uuid.uuid4()
         req_id = request_id_ctx.get()
+
+        active_threshold = await self._get_org_threshold(org_id)
 
         # Build inference input dict
         tx_payload = {
@@ -49,11 +58,11 @@ class PredictionService:
 
         # Measure ML latency
         start_time = time.perf_counter()
-        result = self.ml_engine.predict(tx_payload)
+        result = self.ml_engine.predict(tx_payload, threshold=active_threshold)
         latency_ms = (time.perf_counter() - start_time) * 1000.0
 
         # Calculate Model Confidence Metrics (Requirement 9)
-        conf_score = round(abs(result["risk_score"] - 0.5) * 2.0, 4)
+        conf_score = round(min(abs(result["risk_score"] - active_threshold) * 2.0, 1.0), 4)
         if conf_score >= 0.80:
             conf_level = "Very High"
             conf_exp = "The model is extremely confident in this decision based on strong feature signals."
@@ -75,7 +84,7 @@ class PredictionService:
             session_name=session_name,
             created_by=created_by,
             model_version=self.ml_engine.version,
-            threshold_version=str(self.ml_engine.threshold),
+            threshold_version=f"{active_threshold:.2f}",
             feature_schema_version="v1.0.0"
         )
 
@@ -183,16 +192,18 @@ class PredictionService:
             for tx_data in transactions_data
         ]
 
+        active_threshold = await self._get_org_threshold(org_id)
+
         inference_start = time.perf_counter()
         if hasattr(self.ml_engine, "predict_batch"):
             from unittest.mock import sentinel
             is_mock = type(self.ml_engine).__name__ in ("MagicMock", "Mock", "NonCallableMagicMock")
             if is_mock and getattr(self.ml_engine.predict_batch, "_mock_return_value", sentinel.DEFAULT) == sentinel.DEFAULT:
-                results = [self.ml_engine.predict(tx) for tx in tx_payloads]
+                results = [self.ml_engine.predict(tx, threshold=active_threshold) for tx in tx_payloads]
             else:
-                results = self.ml_engine.predict_batch(tx_payloads)
+                results = self.ml_engine.predict_batch(tx_payloads, threshold=active_threshold)
         else:
-            results = [self.ml_engine.predict(tx) for tx in tx_payloads]
+            results = [self.ml_engine.predict(tx, threshold=active_threshold) for tx in tx_payloads]
         inference_latency_ms = (time.perf_counter() - inference_start) * 1000.0
         avg_latency_ms = round(inference_latency_ms / max(len(results), 1), 2)
 
@@ -201,7 +212,7 @@ class PredictionService:
             result = results[idx]
             prediction_id = uuid.uuid4()
 
-            conf_score = round(abs(result["risk_score"] - 0.5) * 2.0, 4)
+            conf_score = round(min(abs(result["risk_score"] - active_threshold) * 2.0, 1.0), 4)
             if conf_score >= 0.80:
                 conf_level = "Very High"
             elif conf_score >= 0.50:

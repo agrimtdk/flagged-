@@ -87,7 +87,7 @@ class MLEngine:
             self._version = version
             self._threshold = predictor.optimal_threshold
 
-    def predict(self, transaction: dict) -> dict:
+    def predict(self, transaction: dict, threshold: float = None) -> dict:
         """
         Stateless prediction execution.
         """
@@ -98,9 +98,9 @@ class MLEngine:
                 code="ML_MODEL_NOT_LOADED",
                 message="Machine Learning prediction model is not loaded."
             )
-        return predictor.predict(transaction)
+        return predictor.predict(transaction, threshold=threshold)
 
-    def predict_batch(self, transactions: list[dict]) -> list[dict]:
+    def predict_batch(self, transactions: list[dict], threshold: float = None) -> list[dict]:
         """
         Vectorized batch prediction execution across multiple transactions.
         """
@@ -115,10 +115,10 @@ class MLEngine:
             if type(predictor).__name__ in ("MagicMock", "Mock", "NonCallableMagicMock"):
                 from unittest.mock import sentinel
                 if getattr(predictor.predict_batch, "_mock_return_value", sentinel.DEFAULT) != sentinel.DEFAULT:
-                    return predictor.predict_batch(transactions)
+                    return predictor.predict_batch(transactions, threshold=threshold)
             else:
-                return predictor.predict_batch(transactions)
-        return [predictor.predict(tx) for tx in transactions]
+                return predictor.predict_batch(transactions, threshold=threshold)
+        return [predictor.predict(tx, threshold=threshold) for tx in transactions]
 
     @property
     def is_loaded(self) -> bool:

@@ -39,8 +39,16 @@ class AnalyticsService:
         self.db = db
         self.repo = TransactionRepository(db)
 
+    async def _get_org_threshold(self, org_id: uuid.UUID) -> float:
+        from app.models.organization import Organization
+        org = await self.db.get(Organization, org_id)
+        if org and getattr(org, "risk_threshold", None) is not None:
+            return float(org.risk_threshold)
+        return 0.50
+
     async def get_summary(self, org_id: uuid.UUID, dataset_id: Optional[uuid.UUID] = None) -> AnalyticsSummary:
-        cache_key = f"analytics:{org_id}:{dataset_id or 'all'}:summary"
+        active_thresh = await self._get_org_threshold(org_id)
+        cache_key = f"analytics:{org_id}:{dataset_id or 'all'}:{active_thresh:.2f}:summary"
         
         # 1. Try Redis cache lookup
         cached_data = await redis_manager.get(cache_key)
@@ -54,12 +62,12 @@ class AnalyticsService:
         # 2. Database query on cache miss
         logger.info(f"Cache MISS for analytics summary of org {org_id}. Aggregating from database...")
         
-        summary_raw = await self.repo.get_analytics_summary_raw(org_id=org_id, dataset_id=dataset_id)
-        top_countries = await self.repo.get_top_billing_countries(org_id=org_id, dataset_id=dataset_id, limit=10)
-        top_brands = await self.repo.get_top_card_brands(org_id=org_id, dataset_id=dataset_id)
+        summary_raw = await self.repo.get_analytics_summary_raw(org_id=org_id, dataset_id=dataset_id, threshold=active_thresh)
+        top_countries = await self.repo.get_top_billing_countries(org_id=org_id, dataset_id=dataset_id, limit=10, threshold=active_thresh)
+        top_brands = await self.repo.get_top_card_brands(org_id=org_id, dataset_id=dataset_id, threshold=active_thresh)
         device_dist = await self.repo.get_device_distribution(org_id=org_id, dataset_id=dataset_id)
-        fraud_device = await self.repo.get_fraud_by_device(org_id=org_id, dataset_id=dataset_id)
-        fraud_country = await self.repo.get_fraud_by_country(org_id=org_id, dataset_id=dataset_id, limit=10)
+        fraud_device = await self.repo.get_fraud_by_device(org_id=org_id, dataset_id=dataset_id, threshold=active_thresh)
+        fraud_country = await self.repo.get_fraud_by_country(org_id=org_id, dataset_id=dataset_id, limit=10, threshold=active_thresh)
         source_dist = await self.repo.get_source_distribution(org_id=org_id, dataset_id=dataset_id)
 
         # Build structural sub-components
@@ -109,7 +117,8 @@ class AnalyticsService:
         return summary
 
     async def get_timeline(self, org_id: uuid.UUID, days: int = 30, dataset_id: Optional[uuid.UUID] = None) -> List[TimelinePoint]:
-        cache_key = f"analytics:{org_id}:{dataset_id or 'all'}:timeline:{days}"
+        active_thresh = await self._get_org_threshold(org_id)
+        cache_key = f"analytics:{org_id}:{dataset_id or 'all'}:{active_thresh:.2f}:timeline:{days}"
 
         # 1. Try Redis cache lookup
         cached_data = await redis_manager.get(cache_key)
@@ -123,7 +132,7 @@ class AnalyticsService:
 
         # 2. Database query on cache miss
         logger.info(f"Cache MISS for analytics timeline ({days} days) of org {org_id}. Aggregating...")
-        timeline_raw = await self.repo.get_fraud_timeline(org_id=org_id, dataset_id=dataset_id, days=days)
+        timeline_raw = await self.repo.get_fraud_timeline(org_id=org_id, dataset_id=dataset_id, days=days, threshold=active_thresh)
 
         points = [
             TimelinePoint(

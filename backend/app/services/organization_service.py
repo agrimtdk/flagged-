@@ -20,9 +20,13 @@ class OrganizationService:
     async def get_organization(self, id: str) -> Organization:
         return await self.org_repo.get(id)
 
-    async def update_organization(self, id: str, name: str) -> Organization:
+    async def update_organization(self, id: str, name: str = None, risk_threshold: float = None) -> Organization:
         org = await self.org_repo.get(id)
         if org:
-            org.name = name
+            if name is not None:
+                org.name = name
+            if risk_threshold is not None:
+                if 0.0 <= risk_threshold <= 1.0:
+                    org.risk_threshold = round(float(risk_threshold), 2)
             await self.db.flush()
         return org

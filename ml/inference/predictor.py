@@ -50,7 +50,7 @@ class FraudPredictor:
         if missing_keys:
             raise ValueError(f"Missing required transaction keys: {', '.join(missing_keys)}")
 
-    def predict(self, transaction: dict) -> dict:
+    def predict(self, transaction: dict, threshold: float = None) -> dict:
         """
         Preprocesses raw transaction payload, executes prediction score, 
         applies threshold, and returns structured decision object with explanations.
@@ -72,7 +72,8 @@ class FraudPredictor:
         
         # Compute prediction probability
         prob = float(self.model.predict_proba(X)[0, 1])
-        is_fraud = prob >= self.optimal_threshold
+        active_thresh = threshold if threshold is not None else self.optimal_threshold
+        is_fraud = prob >= active_thresh
         
         # Compute prediction explanation reasons
         # We calculate impact by multiplying the scaled feature values by their model importance weight
@@ -129,11 +130,11 @@ class FraudPredictor:
             }
         }
 
-    def predict_batch(self, transactions: list[dict]) -> list[dict]:
+    def predict_batch(self, transactions: list[dict], threshold: float = None) -> list[dict]:
         """
         Vectorized batch prediction for a list of transaction dictionaries.
         Preprocesses all transaction payloads in a single DataFrame, executes CatBoost prediction,
-        applies optimal threshold, and returns structured decision objects with explanations.
+        applies active threshold, and returns structured decision objects with explanations.
         """
         if not transactions:
             return []
@@ -158,10 +159,11 @@ class FraudPredictor:
         X_records = X.to_dict('records')
         results = []
         global_fraud_rate = getattr(self.preprocessor, 'global_fraud_rate', 0.05)
+        active_thresh = threshold if threshold is not None else self.optimal_threshold
 
         for i, prob_val in enumerate(probs):
             prob = float(prob_val)
-            is_fraud = prob >= self.optimal_threshold
+            is_fraud = prob >= active_thresh
             row_dict = X_records[i]
 
             reasons = []

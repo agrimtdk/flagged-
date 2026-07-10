@@ -11,9 +11,21 @@ logger = logging.getLogger("app.routers.organizations")
 router = APIRouter(prefix="/organizations", tags=["Organizations"])
 
 
+from typing import Optional
+
 class OrganizationResponse(BaseModel):
     id: str
     name: str
+    risk_threshold: float = 0.50
+
+
+class OrganizationUpdate(BaseModel):
+    name: Optional[str] = None
+    risk_threshold: Optional[float] = None
+
+
+class ThresholdUpdate(BaseModel):
+    risk_threshold: float
 
 
 @router.get("/current", response_model=OrganizationResponse)
@@ -40,12 +52,9 @@ async def get_current_organization(
         
     return {
         "id": str(org.id),
-        "name": org.name
+        "name": org.name,
+        "risk_threshold": getattr(org, "risk_threshold", 0.50) or 0.50
     }
-
-
-class OrganizationUpdate(BaseModel):
-    name: str
 
 
 @router.patch("/current", response_model=OrganizationResponse)
@@ -62,8 +71,16 @@ async def update_current_organization(
             message="No organization is bound to your authentication session."
         )
 
+    if payload.risk_threshold is not None and not (0.0 <= payload.risk_threshold <= 1.0):
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="INVALID_THRESHOLD",
+            message="Risk threshold must be between 0.00 and 1.00."
+        )
+
     org_service = OrganizationService(db)
-    org = await org_service.update_organization(org_id, payload.name.strip())
+    name_val = payload.name.strip() if payload.name else None
+    org = await org_service.update_organization(org_id, name=name_val, risk_threshold=payload.risk_threshold)
     if not org:
         raise AppException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -74,8 +91,62 @@ async def update_current_organization(
     await db.commit()
     return {
         "id": str(org.id),
-        "name": org.name
+        "name": org.name,
+        "risk_threshold": getattr(org, "risk_threshold", 0.50) or 0.50
     }
+
+
+@router.get("/current/threshold")
+async def get_current_threshold(
+    claims: dict = requires_permission("analytics:read"),
+    db: AsyncSession = Depends(get_db)
+):
+    org_id = claims.get("org_id")
+    if not org_id:
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="BAD_REQUEST",
+            message="No organization is bound to your authentication session."
+        )
+
+    org_service = OrganizationService(db)
+    org = await org_service.get_organization(org_id)
+    threshold = getattr(org, "risk_threshold", 0.50) if org else 0.50
+    return {"risk_threshold": threshold or 0.50}
+
+
+@router.patch("/current/threshold")
+async def update_current_threshold(
+    payload: ThresholdUpdate,
+    claims: dict = requires_permission("apikey:write"),
+    db: AsyncSession = Depends(get_db)
+):
+    org_id = claims.get("org_id")
+    if not org_id:
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="BAD_REQUEST",
+            message="No organization is bound to your authentication session."
+        )
+
+    if not (0.0 <= payload.risk_threshold <= 1.0):
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="INVALID_THRESHOLD",
+            message="Risk threshold must be between 0.00 and 1.00."
+        )
+
+    org_service = OrganizationService(db)
+    org = await org_service.update_organization(org_id, risk_threshold=payload.risk_threshold)
+    if not org:
+        raise AppException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="ORGANIZATION_NOT_FOUND",
+            message="Organization not located."
+        )
+
+    await db.commit()
+    return {"status": "success", "risk_threshold": getattr(org, "risk_threshold", 0.50)}
 
 
 @router.delete("/current/audit-logs", status_code=status.HTTP_200_OK)

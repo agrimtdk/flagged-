@@ -23,6 +23,13 @@ export const Settings: React.FC = () => {
     if (org) {
       setOrgName(org.name);
     }
+    organizationService.getThreshold()
+      .then((res) => {
+        if (typeof res?.risk_threshold === "number") {
+          setThreshold(res.risk_threshold);
+        }
+      })
+      .catch(() => {});
   }, [org]);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -35,12 +42,13 @@ export const Settings: React.FC = () => {
 
       // Persist to backend database if session is authenticated
       try {
-        await organizationService.updateCurrentOrganization(newOrg.name);
+        await organizationService.updateCurrentOrganization(newOrg.name, threshold);
+        await organizationService.updateThreshold(threshold);
       } catch (err) {
         // Fallback gracefully for demo/offline session
       }
 
-      addToast("Organization display name and workspace properties updated everywhere.", "success");
+      addToast(`Workspace settings updated. Dynamic Risk Scoring threshold set to ${threshold.toFixed(2)} across all predictions & analytics.`, "success");
     } finally {
       setSubmitting(false);
     }
