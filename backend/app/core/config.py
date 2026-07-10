@@ -68,6 +68,9 @@ class CommonSettings(BaseSettings):
     CSV_MAX_ROWS: int = 100000
     CSV_MAX_FILES_PER_USER: int = 10
     CSV_MAX_SIZE_BYTES: int = 10 * 1024 * 1024  # 10MB
+    MAX_API_KEYS_PER_USER: int = 1
+    FREE_MONTHLY_API_CALLS: int = 1000
+    FREE_API_RATE_LIMIT_PER_SEC: int = 10
     SHOW_DEBUG_INFO: bool = True
 
 

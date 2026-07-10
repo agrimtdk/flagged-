@@ -15,7 +15,7 @@ export const Pricing: React.FC = () => {
         "Up to 1,000 API calls / month",
         "Single API key integration",
         "Baseline XGBoost model access",
-        "Manual CSV uploads (100 rows limit)",
+        "Manual CSV uploads (100,000 rows limit)",
         "Shared analytics dashboard",
       ],
       cta: "Get Started",
@@ -30,7 +30,7 @@ export const Pricing: React.FC = () => {
       features: [
         "Up to 100,000 API calls / month",
         "5 active API keys & rotation",
-        "Full CSV uploads (50,000 rows limit)",
+        "Full CSV uploads (500,000 rows limit)",
         "Priority scoring latency (<30ms p95)",
         "Email support (24hr response)",
       ],

@@ -9,6 +9,7 @@ from app.core.database import get_db
 from app.core.rbac import requires_permission
 from app.core.security import hash_token
 from app.core.redis import redis_manager
+from app.core.config import settings
 from app.exceptions import AppException
 from app.models.api_key import ApiKey
 from app.repositories.api_key import ApiKeyRepository
@@ -64,6 +65,16 @@ async def create_api_key(
             message="No organization bound to this session."
         )
     org_id = uuid.UUID(org_id_str)
+
+    repo = ApiKeyRepository(db)
+    existing_keys = await repo.get_all_for_org(org_id)
+    active_keys = [k for k in existing_keys if k.is_active]
+    if len(active_keys) >= settings.MAX_API_KEYS_PER_USER:
+        raise AppException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            code="MAX_API_KEYS_EXCEEDED",
+            message=f"Maximum active API keys limit reached ({settings.MAX_API_KEYS_PER_USER} active key for Developer tier). Please revoke an existing API credential before generating a new one."
+        )
 
     raw_key = f"fl_live_{secrets.token_hex(16)}"
     key_prefix = raw_key[:16]

@@ -52,6 +52,20 @@ async def predict_transaction(
     source = "API" if claims.get("sub") == "api_key" else "Web"
     created_by = claims.get("email") or claims.get("sub") or "API Client"
 
+    if source == "API":
+        from app.core.redis import redis_manager
+        within_limit = await redis_manager.check_rate_limit(
+            key=f"ratelimit:predict:{org_id}",
+            max_requests=settings.FREE_API_RATE_LIMIT_PER_SEC,
+            window_seconds=1
+        )
+        if not within_limit:
+            raise AppException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                code="RATE_LIMIT_EXCEEDED",
+                message=f"Rate limit exceeded ({settings.FREE_API_RATE_LIMIT_PER_SEC} requests/sec for Developer tier). Please slow down your API requests."
+            )
+
     try:
         response = await prediction_service.predict_single(org_id, payload, source=source, created_by=created_by)
         if source == "API" and claims.get("key_hash"):
