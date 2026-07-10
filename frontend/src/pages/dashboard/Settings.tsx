@@ -11,7 +11,7 @@ import { organizationService } from "../../services/organization";
 
 export const Settings: React.FC = () => {
   const { org, updateOrg } = useAuth();
-  const [orgName, setOrgName] = useState(org?.name || "Acme Corporation");
+  const [orgName, setOrgName] = useState(org?.name || "Agrim's Work Org");
   const [threshold, setThreshold] = useState(0.50);
   const [submitting, setSubmitting] = useState(false);
   const [purgeOpen, setPurgeOpen] = useState(false);
@@ -37,7 +37,7 @@ export const Settings: React.FC = () => {
     setSubmitting(true);
     try {
       // Immediately update everywhere in frontend context
-      const newOrg = { id: org?.id || "org_acme_live_uuid_8849", name: orgName.trim() || "Acme Corporation" };
+      const newOrg = { id: org?.id || "org_acme_live_uuid_8849", name: orgName.trim() || "Agrim's Work Org" };
       updateOrg(newOrg);
 
       // Persist to backend database if session is authenticated
@@ -103,7 +103,7 @@ export const Settings: React.FC = () => {
                 value={orgName}
                 onChange={(e) => {
                   setOrgName(e.target.value);
-                  const newName = e.target.value.trim() || "Acme Corporation";
+                  const newName = e.target.value.trim() || "Agrim's Work Org";
                   updateOrg({ id: org?.id || "org_acme_live_uuid_8849", name: newName });
                 }}
                 placeholder="Enter organization display name..."

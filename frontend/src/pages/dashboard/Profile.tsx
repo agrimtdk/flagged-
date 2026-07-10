@@ -12,8 +12,8 @@ import { authService } from "../../services/auth";
 
 export const Profile: React.FC = () => {
   const { user, org, updateUser } = useAuth();
-  const [name, setName] = useState(user?.full_name || "Agrim Sharma");
-  const [email, setEmail] = useState(user?.email || "agrim@acme-corp.com");
+  const [name, setName] = useState(user?.full_name || "Agrim S");
+  const [email, setEmail] = useState(user?.email || "terradekk@gmail.com");
   const [submitting, setSubmitting] = useState(false);
   
   const { addToast } = useToast();
@@ -94,17 +94,25 @@ export const Profile: React.FC = () => {
             <CardContent className="p-4 space-y-3 text-xs">
               <div className="flex justify-between items-center">
                 <span className="text-text-secondary">Organization:</span>
-                <span className="font-bold text-text-primary">{org?.name || "Acme Corporation"}</span>
+                <span className="font-bold text-text-primary">{org?.name || "Agrim's Work Org"}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-text-secondary">License Plan:</span>
                 <span className="font-bold text-accent bg-accent/15 px-2 py-0.5 rounded border border-accent/30">
-                  Enterprise Suite
+                  Developer Tier
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-text-secondary">Throughput SLA:</span>
-                <span className="font-mono font-bold text-text-primary">50,000 req / min</span>
+                <span className="font-mono font-bold text-text-primary">10 req / sec (600 / min)</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary">Monthly Quota:</span>
+                <span className="font-mono font-bold text-text-primary">1,000 API calls / mo</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary">API Keys Allowed:</span>
+                <span className="font-mono text-xs text-text-primary">1 Active Key (Max)</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-text-secondary">Data Isolation:</span>
