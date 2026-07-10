@@ -19,3 +19,10 @@ class OrganizationService:
 
     async def get_organization(self, id: str) -> Organization:
         return await self.org_repo.get(id)
+
+    async def update_organization(self, id: str, name: str) -> Organization:
+        org = await self.org_repo.get(id)
+        if org:
+            org.name = name
+            await self.db.flush()
+        return org

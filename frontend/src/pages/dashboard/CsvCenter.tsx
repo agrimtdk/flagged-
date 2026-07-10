@@ -609,9 +609,10 @@ export const CsvCenter: React.FC = () => {
               </Button>
               <Button
                 type="button"
+                variant="danger"
                 disabled={isDeleting}
                 onClick={executeDeleteCollection}
-                className="text-xs px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded flex items-center gap-2 shadow-lg shadow-red-500/20"
+                className="text-xs px-5 py-2 bg-red-600 hover:bg-red-700 border-red-600 text-white font-bold rounded flex items-center gap-2 shadow-lg shadow-red-500/20"
               >
                 {isDeleting ? "Deleting..." : "Confirm Delete"}
               </Button>

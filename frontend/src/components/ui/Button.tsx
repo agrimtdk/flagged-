@@ -8,14 +8,14 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = "", variant = "primary", size = "md", isLoading, children, disabled, ...props }, ref) => {
-    const baseStyles = "inline-flex items-center justify-center font-medium rounded border focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+    const baseStyles = "inline-flex items-center justify-center font-medium rounded border focus:outline-none focus:ring-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
     
     const variants = {
-      primary: "bg-accent border-accent text-accent-foreground hover:bg-accent/90 hover:border-accent/90",
-      secondary: "bg-card border-border text-text-primary hover:bg-border/30",
+      primary: "bg-accent border-accent text-accent-foreground hover:bg-accent/90 hover:border-accent/90 focus:ring-accent/50",
+      secondary: "bg-card border-border text-text-primary hover:bg-border/30 focus:ring-border",
       danger: "bg-red-600 border-red-600 text-white hover:bg-red-700 hover:border-red-700 focus:ring-red-500/50",
-      outline: "bg-transparent border-text-primary text-text-primary hover:bg-text-primary/5",
-      ghost: "bg-transparent border-transparent text-text-primary hover:bg-text-primary/5",
+      outline: "bg-transparent border-text-primary text-text-primary hover:bg-text-primary/5 focus:ring-border",
+      ghost: "bg-transparent border-transparent text-text-primary hover:bg-text-primary/5 focus:ring-border",
     };
 
     const sizes = {
