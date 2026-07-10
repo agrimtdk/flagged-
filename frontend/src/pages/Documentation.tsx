@@ -25,7 +25,7 @@ export const Documentation: React.FC = () => {
         </p>
         <Card className="bg-card/45 border-border">
           <CardContent className="font-mono text-xs overflow-x-auto p-4 text-text-primary">
-            Authorization: Bearer fl_live_382ef9104032a10
+            Authorization: Bearer fl_live_YOUR_API_KEY
           </CardContent>
         </Card>
 
