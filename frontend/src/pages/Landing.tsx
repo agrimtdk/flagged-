@@ -19,9 +19,9 @@ export const Landing: React.FC = () => {
             Integrate enterprise-grade transaction scoring into your billing stack in minutes. 
             Identify high-risk cards, prevent chargeback penalties, and audit retroactively with ease.
           </p>
-          <div className="flex items-center gap-4 mt-2">
-            <Link to="/dashboard">
-              <Button size="lg">Open Console</Button>
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
+            <Link to="/pricing">
+              <Button size="lg" className="font-bold">Get Started</Button>
             </Link>
             <Link to="/docs">
               <Button variant="outline" size="lg">Read Docs</Button>

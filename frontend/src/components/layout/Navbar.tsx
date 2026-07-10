@@ -35,10 +35,10 @@ export const Navbar: React.FC = () => {
               Sign In
             </Link>
             <Link
-              to="/dashboard"
-              className="inline-flex items-center justify-center px-4 py-2 border border-accent rounded text-sm font-medium text-accent-foreground bg-accent hover:bg-accent/90 transition-colors"
+              to="/pricing"
+              className="inline-flex items-center justify-center px-4 py-2 border border-accent rounded text-sm font-medium text-accent-foreground bg-accent hover:bg-accent/90 transition-colors font-bold"
             >
-              Console
+              Get Started
             </Link>
           </div>
         </div>

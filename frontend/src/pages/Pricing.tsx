@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../components/ui/Card";
@@ -19,7 +20,8 @@ export const Pricing: React.FC = () => {
         "Shared analytics dashboard",
       ],
       cta: "Get Started",
-      variant: "secondary" as const,
+      disabled: false,
+      variant: "primary" as const,
     },
     {
       name: "Scale",
@@ -34,8 +36,9 @@ export const Pricing: React.FC = () => {
         "Priority scoring latency (<30ms p95)",
         "Email support (24hr response)",
       ],
-      cta: "Upgrade Console",
-      variant: "primary" as const,
+      cta: "Under Development",
+      disabled: true,
+      variant: "secondary" as const,
     },
     {
       name: "Enterprise",
@@ -49,7 +52,8 @@ export const Pricing: React.FC = () => {
         "Kafka-based event streams (V2)",
         "Dedicated Slack channel & SLA support",
       ],
-      cta: "Contact Sales",
+      cta: "Under Development",
+      disabled: true,
       variant: "outline" as const,
     },
   ];
@@ -57,7 +61,6 @@ export const Pricing: React.FC = () => {
   return (
     <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col items-center">
       <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-3">
-        <Badge variant="success">Flexible Plans</Badge>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-text-primary font-solway">
           Transparent, Developer-Friendly Pricing
         </h1>
@@ -75,7 +78,9 @@ export const Pricing: React.FC = () => {
                   {plan.badge}
                 </Badge>
               </div>
-              <CardTitle>{plan.name}</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight font-solway text-text-primary">
+                {plan.name}
+              </CardTitle>
               <p className="text-xs text-text-secondary mt-1 min-h-[32px]">{plan.description}</p>
             </CardHeader>
 
@@ -96,9 +101,17 @@ export const Pricing: React.FC = () => {
             </CardContent>
 
             <CardFooter className="pt-4 border-t border-border">
-              <Button variant={plan.variant} className="w-full">
-                {plan.cta}
-              </Button>
+              {plan.disabled ? (
+                <Button variant="secondary" disabled className="w-full font-bold opacity-60 cursor-not-allowed">
+                  {plan.cta}
+                </Button>
+              ) : (
+                <Link to="/login" className="w-full">
+                  <Button variant={plan.variant} className="w-full font-bold">
+                    {plan.cta}
+                  </Button>
+                </Link>
+              )}
             </CardFooter>
           </Card>
         ))}
