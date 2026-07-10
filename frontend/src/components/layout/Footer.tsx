@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Badge } from "../ui/Badge";
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -57,12 +58,15 @@ export const Footer: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="mt-8 border-t border-border pt-8 flex items-center justify-between">
+        <div className="mt-8 border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-text-secondary">
             &copy; {currentYear} flagged!. All rights reserved.
           </p>
-          <div className="text-xs text-text-secondary">
-            Built for enterprise SaaS workloads.
+          <div className="flex items-center justify-center">
+            <Badge variant="success">Version 1.0 Active</Badge>
+          </div>
+          <div className="text-xs font-medium text-text-secondary sm:text-right">
+            Made with love in 🇮🇳 by <span className="text-text-primary font-bold">Agrim Sharma</span>
           </div>
         </div>
       </div>

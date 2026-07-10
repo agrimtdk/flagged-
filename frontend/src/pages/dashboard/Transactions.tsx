@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FileSpreadsheet, Download, SlidersHorizontal, Eye, RefreshCw, Filter, ShieldCheck, ShieldAlert, Cpu } from "lucide-react";
+import { FileSpreadsheet, Download, SlidersHorizontal, RefreshCw, Filter, ShieldCheck, ShieldAlert, Cpu } from "lucide-react";
 import { SectionHeader } from "../../components/ui/SectionHeader";
 import { Button } from "../../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/Card";
@@ -31,18 +31,7 @@ export const Transactions: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [inspectTx, setInspectTx] = useState<TransactionItem | null>(null);
-  const [showColMenu, setShowColMenu] = useState(false);
 
-  const [visibleCols, setVisibleCols] = useState({
-    id: true,
-    amount: true,
-    brand: true,
-    country: true,
-    source: true,
-    risk: true,
-    decision: true,
-    date: true,
-  });
 
   const { addToast } = useToast();
 
@@ -158,9 +147,7 @@ export const Transactions: React.FC = () => {
     }).format(amt);
   };
 
-  const toggleCol = (key: keyof typeof visibleCols) => {
-    setVisibleCols((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+
 
   if (loading || datasetLoading) {
     return (
@@ -206,44 +193,6 @@ export const Transactions: React.FC = () => {
                 <SlidersHorizontal className="h-5 w-5 text-accent" />
                 <span>Multi-Parameter Audit Explorer</span>
               </CardTitle>
-              <div className="relative">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowColMenu(!showColMenu)}
-                  className="flex items-center gap-1.5 text-xs border border-border"
-                >
-                  <Eye className="h-3.5 w-3.5 text-text-secondary" />
-                  <span>Columns</span>
-                </Button>
-                {showColMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-xl z-20 p-3 space-y-2 text-xs">
-                    <p className="font-bold text-[10px] uppercase text-text-secondary tracking-wider mb-2 border-b border-border pb-1">
-                      Toggle Columns
-                    </p>
-                    {Object.entries({
-                      id: "External ID",
-                      amount: "Amount",
-                      brand: "Card Brand",
-                      country: "Country",
-                      source: "Channel Source",
-                      risk: "Risk Score",
-                      decision: "Decision",
-                      date: "Timestamp",
-                    }).map(([k, label]) => (
-                      <label key={k} className="flex items-center gap-2 cursor-pointer hover:text-accent transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={visibleCols[k as keyof typeof visibleCols]}
-                          onChange={() => toggleCol(k as keyof typeof visibleCols)}
-                          className="rounded border-border text-accent focus:ring-accent"
-                        />
-                        <span>{label}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Advanced Filter Bar */}

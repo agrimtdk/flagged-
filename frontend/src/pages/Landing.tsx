@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, Activity, Key, FileSpreadsheet } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/Card";
-import { Badge } from "../components/ui/Badge";
 
 export const Landing: React.FC = () => {
   return (
@@ -11,7 +10,6 @@ export const Landing: React.FC = () => {
       {/* Hero Section */}
       <section className="py-20 bg-card border-b border-border text-center px-4 sm:px-6 lg:px-8 transition-colors">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-6">
-          <Badge variant="success">Version 1.0 Active</Badge>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-text-primary tracking-tight leading-tight font-solway">
             AI-Powered Fraud Detection Platform for Businesses
           </h1>
@@ -43,9 +41,9 @@ export const Landing: React.FC = () => {
               <div className="h-10 w-10 bg-accent/10 border border-accent/20 rounded flex items-center justify-center text-accent">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="text-lg font-bold">XGBoost ML Models</h3>
+              <h3 className="text-lg font-bold">Advanced AI Scoring Engine</h3>
               <p className="text-sm text-text-secondary leading-relaxed">
-                Uses customized XGBoost trees optimized for class imbalance to yield precision scores &gt; 95%.
+                Uses customized machine learning ensembles optimized for class imbalance to yield precision scores &gt; 95%.
               </p>
             </CardContent>
           </Card>
